@@ -1,22 +1,13 @@
-#!/usr/bin/env ruby
+class Menu
 
-$LOAD_PATH << "lib"
-$LOAD_PATH << "models"
-
-require 'expense'
-#require 'income'
-
-
-
-
-def display_main_menu
-    menu =<<EOS
+def self.main_menu
+  menu =<<EOS
 Welcome!
 --------------------
 What would you like to do?
 1. View Your Budget
-2. Add An Expense
-3. Add An Income
+2. Add Income
+3. Add Expense
 --------------------
 Type 'Q' to Quit
 --------------------
@@ -27,36 +18,19 @@ EOS
   if user_selection == 'Q' or user_selection == 'q'
     quit_selected
   elsif user_selection == '1'
-    view_budget
+    return 'view'
   elsif user_selection == '2'
-    add_expense
+    return 'add_income'
   elsif user_selection == '3'
-    add_income
+    return 'add_expense'
   else
     puts 'Invalid Selection'
     display_main_menu
   end
 end
 
-def quit_selected
+def self.quit_selected
   puts "Goodbye!"
-  exit
 end
 
-def add_expense
-  puts "add_expense"
 end
-
-def add_income
-  puts "add_income"
-end
-
-def view_budget
-  puts "view budget"
-end
-
-
-
-
-
-display_main_menu
