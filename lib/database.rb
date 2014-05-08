@@ -16,12 +16,12 @@ class Database < SQLite3::Database
   end
 
   def execute(statement, bind_vars = [])
-    #Database.logger.info("Executing: #{statement} with: #{bind_vars}")
+    Database.logger.info("Executing: #{statement} with: #{bind_vars}")
     super(statement, bind_vars)
   end
 
   #currently unused
-  def self.logger
+  def Database.logger
     @@logger ||= Logger.new("log/#{@@environment}.log")
   end
 end
