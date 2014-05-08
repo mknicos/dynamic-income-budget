@@ -1,24 +1,26 @@
 require 'rspec/core/rake_task'
+require 'sqlite3'
 $LOAD_PATH << "lib"
 
 RSpec::Core::RakeTask.new(:spec)
 
-task :default => :spec
+task :default => [:bootstrap_database, :test_prepare, :spec]
 
 desc 'create the production database setup'
 task :bootstrap_database do
-  require 'environment'
-  Environment.environment = 'production'
-  database = Environment.database_connection
-  database.create_tables
+  production_db = 'db/budget.sqlite3'
+  unless File.exist?(production_db)
+    db = SQLite3::Database.new(production_db)
+    db.execute("CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, description TEXT)")
+    db.execute("CREATE TABLE incomes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, description TEXT)")
+  end
 end
 
 desc 'prepare the test database'
 task :test_prepare do
-  require 'environment'
-  test_database = 'db/license_to_kill_test.sqlite3'
-  File.delete(test_database) if File.exist?(test_database)
-  Environment.environment = 'test'
-  database = Environment.database_connection
-  database.create_tables
+  test_db = 'db/budget_test.sqlite3'
+  File.delete(test_db) if File.exist?(test_db)
+  db = SQLite3::Database.new(test_db)
+  db.execute("CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, description TEXT)")
+  db.execute("CREATE TABLE incomes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, description TEXT)")
 end
