@@ -68,11 +68,12 @@ def get_expense_recurrance
   elsif expense_recurs == 3
     expense_recurs == 'monthly'
   elsif expense_recurs == 4
-    expense_recurs = 'annualy'
+    expense_recurs = 'annually'
   else
     puts "Input Invalid"
-    puts expense_recurs_menu
+    get_expense_recurrance
   end
+  expense_recurs
 end
 
 
