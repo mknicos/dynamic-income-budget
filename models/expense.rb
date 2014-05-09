@@ -45,9 +45,19 @@ class Expense
   end
 
   def self.count
-    statement = "Select count(*) from expenses;"
+    statement = "SELECT count(*) FROM expenses;"
     result = Database.connection.execute(statement)
     result[0][0]
+  end
+
+  def self.last
+    id = Database.connection.execute("SELECT LAST_INSERT_ROWID();")
+    statement = "SELECT * FROM expenses WHERE id = ?"
+    last_row = Database.connection.execute(statement, id)[0]
+    return nil if last_row == nil
+    expense = Expense.new(last_row[1],last_row[2],last_row[3],last_row[4])
+    expense.instance_variable_set(:@id, last_row[0])
+    expense
   end
 
   def annual_expenses_per_day

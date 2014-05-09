@@ -115,9 +115,7 @@ describe Expense do
       it "should return the correct number of rows in database" do
         Expense.all.size.should == 4
       end
-
     end
-
   end
 
   describe "#annual_expenses_per_day" do
@@ -165,6 +163,25 @@ describe Expense do
   end
 
   describe ".last" do
+    context "with no expenses in the database" do
+      it "should return nil" do
+        Expense.last.should be_nil
+      end
+    end
+    context "with multiple expenses in the database" do
+      let(:water_bill){Expense.new("water bill", 100, "monthly", "lets me shower")}
+      before do
+        Expense.new("electric bill", 100, "monthly", "lets me see at night")
+        Expense.new("cable bill", 100, "monthly", "lets me watch tv")
+        water_bill.save
+      end
+      it "should return the last one inserted" do
+        Expense.last.name.should == "water bill"
+      end
+      it "should return the last one inserted with id populated" do
+        Expense.last.id.should == water_bill.id
+      end
+    end
   end
 
   describe ".count" do
