@@ -49,13 +49,21 @@ describe Expense do
     context "with a valid expense" do
       before do
         expense.stub(:valid?){true}
+        expense
       end
 
       it "should record the new id" do
+        expected_id = result[0][0]
+        expense.id.should == expected_id
       end
       it "should only save one row to the database" do
+        Expense.count.should == 1
       end
-      it "should actually save it to the database" do
+      it "should be found by name in  the database" do
+        Expense.find_by_name("water bill").name.should == "water bill"
+      end
+      it "should insert a row into database" do
+        result.count == 1
       end
     end
 

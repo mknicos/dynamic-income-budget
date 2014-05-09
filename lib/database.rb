@@ -19,7 +19,6 @@ class Database < SQLite3::Database
     super(statement, bind_vars)
   end
 
-  #currently unused
   def Database.logger
     @@logger ||= Logger.new("log/#{@@environment}.log")
   end

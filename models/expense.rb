@@ -22,6 +22,12 @@ class Expense
     end
   end
 
+  def self.create(name, amount, recurrance, desc)
+    expense = Expense.new(name, amount, recurrance, desc)
+    expense.save
+    expense
+  end
+
   def valid?
     valid_characters = @name.match /[a-zA-Z]/
     name_already_in_db = Expense.find_by_name(@name)
