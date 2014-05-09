@@ -99,13 +99,25 @@ describe Expense do
   end
 
   describe ".all" do
-    it "should return an empty array if the db is empty" do
-      Expense.all.should == []
+    context "with no expenses in the database" do
+      it "should return an empty array if the db is empty" do
+        Expense.all.should == []
+      end
+    end
+    context "with multiple expenses in the database" do
+      before do
+        Expense.create("water bill", 100, "annualy", "lets me shower")
+        Expense.create("cable bill", 100, "annualy", "lets me shower")
+        Expense.create("electric bill", 100, "annualy", "lets me shower")
+        Expense.create("insurance", 100, "monthly", "lets me shower")
+      end
+
+      it "should return the correct number of rows in database" do
+        Expense.all.size.should == 4
+      end
+
     end
 
-    it "should return all the expenses in the db if its not empty" do
-      
-    end
   end
 
   describe "#annual_expenses_per_day" do

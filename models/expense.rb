@@ -39,7 +39,9 @@ class Expense
   end
 
   def self.all
-    []
+    statement = "SELECT * FROM expenses;"
+    results = Database.connection.execute(statement)
+    results
   end
 
   def self.count
@@ -49,7 +51,7 @@ class Expense
   end
 
   def annual_expenses_per_day
-    statement = "SELECT SUM(amount) FROM expenses WHERE recurrance = annually"
+    statement = "SELECT SUM(amount) FROM expenses WHERE recurrance = annually;"
     total_annual_expenses = Database.connection.execute(statement)
     days_in_year = 365
     annual_expenses_per_day = total_annual_expenses / days_in_year
@@ -61,7 +63,7 @@ class Expense
   end
 
   def self.find_by_name(name)
-    statement = "SELECT * FROM expenses WHERE name = ?"
+    statement = "SELECT * FROM expenses WHERE name = ?;"
     result = Database.connection.execute(statement, name)[0]
     return nil if result == nil
     expense = Expense.new(result[1], result[2], result[3], result[4])
