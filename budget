@@ -7,31 +7,17 @@ require 'expense'
 #require 'income'
 
 
-
-
 def display_main_menu
-    menu =<<EOS
-Welcome!
---------------------
-What would you like to do?
-1. View Your Budget
-2. Add An Expense
-3. Add An Income
---------------------
-Type 'Q' to Quit
---------------------
-Select a Number:
-EOS
   puts menu
   user_selection = gets.chomp
   if user_selection == 'Q' or user_selection == 'q'
     quit_selected
   elsif user_selection == '1'
-    view_budget
+    view_budget_selected
   elsif user_selection == '2'
-    add_expense
+    add_expense_selected
   elsif user_selection == '3'
-    add_income
+    add_income_selected
   else
     puts 'Invalid Selection'
     display_main_menu
@@ -43,20 +29,99 @@ def quit_selected
   exit
 end
 
-def add_expense
-  puts "add_expense"
+def add_expense_selected
+  puts "Another Expense?! You need to be more careful"
+  puts "What is the name of the new Expense?"
+  expense_name = gets.chomp
+
+  expense_recurs = get_expense_recurrance
+
+
+  puts "What is the amount of this expense?"
+  #expenses and incomes will be rounded to nearest whole number
+  expense_amount = gets.chomp.to_i.round
+
+  puts "Write a short description of the expense:"
+  expense_desc = gets.chomp
+  expense = Expense.new(expense_name, expense_amount, expense_recurs, expense_desc)
+  expense.save
+
+  #NEED TO ADD EXPENSE
 end
 
-def add_income
+
+
+
+#-------------EXPENSES-------------#
+
+def get_expense_recurrance
+
+  puts expense_recurs_menu
+
+  expense_recurs = gets.chomp.to_i
+  if expense_recurs == 0
+    display_main_menu
+  elsif expense_recurs == 1
+    expense_recurs = 'once'
+  elsif expense_recurs == 2
+    expense_recurs = 'weekly'
+  elsif expense_recurs == 3
+    expense_recurs == 'monthly'
+  elsif expense_recurs == 4
+    expense_recurs = 'annualy'
+  else
+    puts "Input Invalid"
+    puts expense_recurs_menu
+  end
+end
+
+
+#-----------INCOMES--------------#
+
+def add_income_selected
   puts "add_income"
 end
 
-def view_budget
+#----------BUDGET VIEW-----------#
+
+def view_budget_selected
   puts "view budget"
 end
 
 
+#------STRINGS AND MENUS-------------#
+
+def expense_recurs_menu
+<<EOS
+How often does this expense repeat?
+--------------------
+0. Go Back to Main Menu
+1. One Time Expense
+2. Weekly
+3. Monthly
+4. Annually
+--------------------
+Select A Number:
+EOS
+end
 
 
+
+def menu
+<<EOS
+Welcome!
+--------------------
+What would you like to do?
+1. View Your Budget
+2. Add An Expense
+3. Add An Income
+--------------------
+Type 'Q' to Quit
+--------------------
+Select a Number:
+EOS
+end
+
+#--------Call first method-------#
 
 display_main_menu

@@ -1,29 +1,28 @@
 class Expense
-  attr_reader :name, :amount, :description
+  attr_reader :name, :amount, :recurrance, :description, :id
 
-  def initialize(name, amount, desc)
+  def initialize(name, amount, recurrance, desc)
     @name = name
-    @amount = amount
+    @amount = amount.to_i
+    @recurrance = recurrance
     @description = desc
   end
 
-  def valid?
-
-  end
 
   def save
+    statement = "Insert into expenses (name, amount, recurrance, description) values (?,?,?,?);"
+    environment = Database.environment
+    db = Database.new('db/budget_'+environment+'.sqlite3')
+    db.execute(statement, [@name, @amount, @recurrance, @description])
+    @id = db.execute("SELECT last_insert_rowid();")
   end
-  
 
-  def self.execute_and_instantiate(statement, bind_vars = [])
-    rows = database.execute(statement, bind_vars)
-    results = []
-    rows.each do |row|
-      person = Person.new(row["name"])
-      person.instance_variable_set(:@id, row["id"])
-      results << person
-    end
-    results
+  def valid?
+    true
+  end
+
+  def self.all
+    []
   end
 
 end

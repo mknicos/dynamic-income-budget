@@ -2,12 +2,11 @@ require 'sqlite3'
 require 'logger'
 
 class Database < SQLite3::Database
-  @@environment = nil
   def initialize(database)
     super(database)
   end
 
-  def self.environment= environment
+  def environment= environment
     @@environment = environment
   end
 

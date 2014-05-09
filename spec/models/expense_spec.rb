@@ -5,17 +5,18 @@ describe Expense do
   environment = Database.environment
   db = Database.new('db/budget_#{environment}.sqlite3')
 
-  context "#new" do
-   subject { Expense.new("water bill", 100, "lets me shower")}
+  describe "#new" do
+   subject { Expense.new("water bill", 100, "annual", "lets me shower")}
 
    its(:name) { should == "water bill"}
    its(:amount) { should == 100}
+   its(:recurrance) { should == "annual"}
    its(:description) { should == "lets me shower"}
   end
 
   describe "#save" do
     let(:result){ db.execute("SELECT * FROM expenses") }
-    let(:expense){ Expense.new("water bill", 100, "lets me shower") }
+    let(:expense){ Expense.new("water bill", 100, "annualy", "lets me shower") }
     context "with a valid expense" do
       before do
         expense.stub(:valid?){ true }
@@ -44,21 +45,38 @@ describe Expense do
     end
   end
 
+
+
   describe "#valid" do
     let(:result) {db.execute("SELECT name FROM expenses")}
+    let(:expense1){ Expense.new("water bill", 100, "monthly", "lets me shower") }
+    let(:expense2){ Expense.new("electric bill", 200, "monthly", "Nashville Electric Company") }
+    let(:expense3){ Expense.new("electric bill", 100, "annualy", "Nashville Electric Company") }
 
-    context "with a name not in db already" do
+    it "should return true with a unique name" do
+        expense2.should be_valid
+      end
+
+    it "should return false with a name already in database" do
+      expense1.save
+      expense2.save
+      expense3.should_not be_valid
     end
 
-    context "with a name already in db" do
+    it "should return false for name with no valid characters" do
+      let(:expense4){ Expense.new("2345", 100, "annualy", "Nashville Electric Company") }
+      expense4.should_not be_valid
     end
-    
-    context "with a name containing no valid characters" do
-    end
-
   end
 
   describe ".all" do
+    it "should return an empty array if the db is empty" do
+      Expense.all.should == []
+    end
+
+    it "should return all the expenses in the db if its not empty" do
+      
+    end
   end
 
   describe ".last" do
