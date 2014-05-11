@@ -1,14 +1,18 @@
 require 'database'
 class Expense
-  attr_reader :name, :amount, :recurrance, :description, :id
+  attr_reader :name, :amount, :recurrance, :description, :id, :due_date
 
   def initialize(name, amount, recurrance, desc)
     @name = name
     @amount = amount.to_i
     @recurrance = recurrance
     @description = desc
+    @due_date = nil
   end
 
+  def due_date= date
+    @due_date = date
+  end
 
   def save
     if self.valid?
@@ -64,29 +68,25 @@ class Expense
   def self.annual_expenses_per_day
     statement = "SELECT amount FROM expenses WHERE recurrance = 'annually'"
     annual_expense = Database.connection.execute(statement)
-    puts "ANNUAL-------"
-    print annual_expense
+
     total_annual_expense = 0
-    if annual_expense.empty?
-      return 0
-    else
-      annual_expense.each do |expense|
-        total_annual_expense += expense[0]
-      end
+    annual_expense.each do |expense|
+      total_annual_expense += expense[0]
     end
+
     annual_expenses_per_day = (total_annual_expense / 365.00).round(2)
   end
 
-=begin
-  def self.annual_expenses_per_day
-    statement = "SELECT SUM(amount), recurrance FROM expenses GROUP BY recurrance;"
-    total_annual_expenses = Database.connection.execute(statement)
-    days_in_year = 365
-    expenses_per_day = total_annual_expenses / days_in_year
-  end
-=end
   def self.monthly_expenses_per_day
+    statement = "SELECT amount FROM expenses WHERE recurrance = 'monthly'"
+    monthly_expense = Database.connection.execute(statement)
 
+    total_monthly_expense = 0
+    monthly_expense.each do |expense|
+      total_monthly_expense += expense[0]
+    end
+
+    monthly_expenses_per_day = (total_monthly_expense * 12 / 365.00).round(2)
   end
 
   def self.find_by_name(name)
@@ -98,4 +98,17 @@ class Expense
     expense
   end
 
+  def self.total_expenses_per_day
+    monthly_expenses_per_day + annual_expenses_per_day
+  end
+
+
+=begin
+  def self.annual_expenses_per_day
+    statement = "SELECT SUM(amount), recurrance FROM expenses GROUP BY recurrance;"
+    total_annual_expenses = Database.connection.execute(statement)
+    days_in_year = 365
+    expenses_per_day = total_annual_expenses / days_in_year
+  end
+=end
 end

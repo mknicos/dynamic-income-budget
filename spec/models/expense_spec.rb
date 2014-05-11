@@ -118,7 +118,7 @@ describe Expense do
     end
   end
 
-  describe "#annual_expenses_per_day" do
+  describe ".annual_expenses_per_day" do
       let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
       let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
       let(:grille){Expense.create("grille", 175, "annually", "grille description")}
@@ -135,28 +135,22 @@ describe Expense do
     end
 
     context "with one annual expense in the database" do
+      before {grille}
       it "should return the one annual expense calc per day with no other expenses" do
-        grille
         Expense.annual_expenses_per_day.should == 0.48
       end
       it "should only return the annual expense with other types of expenses in db" do
         foo
         bar
-        grille
         Expense.annual_expenses_per_day.should == 0.48
       end
     end
     context " with many annual expenses in the database" do
+      before {grille; yam; drink}
       it "should return the sum of all annual expenses divided by num of days in year" do
-        grille
-        yam
-        drink
         Expense.annual_expenses_per_day.should == 6.64
       end
       it "should return only the sum of annual expenses with other types of expenses in db" do
-        grille
-        yam
-        drink
         foo
         bar
         Expense.annual_expenses_per_day.should == 6.64
@@ -164,24 +158,76 @@ describe Expense do
     end
   end
 
-  describe "#monthly_expenses_per_day" do
+  describe ".monthly_expenses_per_day" do
+      let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
+      let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
+      let(:door){Expense.create("door", 225, "monthly", "bar description")}
+      let(:grille){Expense.create("grille", 175, "annually", "grille description")}
+      let(:yam){Expense.create("yam", 250, "annually", "yam description")}
+      let(:drink){Expense.create("drink", 2000, "annually", "drink description")}
     context "with no monthly expenses in the databse" do
       it "should return zero with no expenses in database" do
+        Expense.monthly_expenses_per_day.should == 0.00
       end
       it "should return zero with other expense types in database" do
+        grille
+        yam
+        Expense.monthly_expenses_per_day.should == 0.00
       end
     end
 
-    context "with one monthly expense in the database" do
+    context "with one expense in the database" do
+      before{door}
       it "should return the one monthly expense calc per day with no other expenses" do
+        Expense.monthly_expenses_per_day.should == 7.40
       end
       it "should only return the monthly expense with other types of expenses in db" do
+        grille
+        yam
+        Expense.monthly_expenses_per_day.should == 7.40
       end
     end
     context " with many monthly expenses in the database" do
-      it "should return the sum of all monthly expenses divided by num of days in year" do
+      before {foo; bar; door}
+      it "should return monthly expenses calculated on a per day basis" do
+        Expense.monthly_expenses_per_day.should == 14.47
       end
-      it "should return only the sum of monthly expenses with other types of expenses in db" do
+      it "should return only monthly expenses with other types of expenses in db" do
+        grille
+        yam
+        drink
+        Expense.monthly_expenses_per_day.should == 14.47
+      end
+    end
+  end
+
+  describe ".total_expenses_per_day" do
+      let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
+      let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
+      let(:door){Expense.create("door", 225, "monthly", "bar description")}
+      let(:grille){Expense.create("grille", 175, "annually", "grille description")}
+      let(:yam){Expense.create("yam", 250, "annually", "yam description")}
+      let(:drink){Expense.create("drink", 2000, "annually", "drink description")}
+
+    context "with no expenses in database" do
+      it "should return zero" do
+        Expense.total_expenses_per_day.should == 0
+      end
+    end
+    context "with only one type of expense in database" do
+      it "should return monthly total with only monthly expenses" do
+        foo; bar; door;
+        Expense.total_expenses_per_day.should == 14.47
+      end
+      it "should return annual total with only annual expenses" do
+        grille; yam; drink;
+        Expense.total_expenses_per_day.should == 6.64
+      end
+    end
+    context "with both types of expenses in the database" do
+      it "should return total of all expenses in a per day basis" do
+        foo; bar; door; grille; yam; drink;
+        Expense.total_expenses_per_day.should == 21.11
       end
     end
   end

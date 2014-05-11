@@ -25,7 +25,6 @@ class Database < SQLite3::Database
 
   def create_tables
     db = Database.connection
-    db.execute("CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, recurrance TEXT, description TEXT)")
-    db.execute("CREATE TABLE incomes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, recurrance TEXT, description TEXT)")
+    db.execute("CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, recurrance TEXT, description TEXT, dueDate DATE)")
   end
 end
