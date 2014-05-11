@@ -13,7 +13,7 @@ describe Expense do
 
   describe "#save" do
     let(:result){ Database.connection.execute("SELECT * FROM expenses") }
-    let(:expense){ Expense.new("water bill", 100, "annualy", "lets me shower") }
+    let(:expense){ Expense.new("water bill", 100, "annually", "lets me shower") }
     context "with a valid expense" do
       before do
         expense.stub(:valid?){ true }
@@ -44,7 +44,7 @@ describe Expense do
 
   describe "#create" do
     let(:result){ Database.connection.execute("SELECT * FROM expenses") }
-    let(:expense){ Expense.create("water bill", 100, "annualy", "lets me shower") }
+    let(:expense){ Expense.create("water bill", 100, "annually", "lets me shower") }
 
     context "with a valid expense" do
       before do
@@ -80,7 +80,7 @@ describe Expense do
     let(:result) {Database.connection.execute("SELECT name FROM expenses")}
     let(:expense1){ Expense.new("water bill", 100, "monthly", "lets me shower") }
     let(:expense2){ Expense.new("electric bill", 200, "monthly", "Nashville Electric Company") }
-    let(:expense3){ Expense.new("electric bill", 100, "annualy", "Nashville Electric Company") }
+    let(:expense3){ Expense.new("electric bill", 100, "annually", "Nashville Electric Company") }
     let(:expense4){ Expense.new("2345", 100, "annualy", "Nashville Electric Company") }
 
     it "should return true with a unique name" do
@@ -119,23 +119,47 @@ describe Expense do
   end
 
   describe "#annual_expenses_per_day" do
+      let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
+      let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
+      let(:grille){Expense.create("grille", 175, "annually", "grille description")}
+      let(:yam){Expense.create("yam", 250, "annually", "yam description")}
+      let(:drink){Expense.create("drink", 2000, "annually", "drink description")}
     context "with no annual expenses in the databse" do
       it "should return zero with no expenses in database" do
+        Expense.annual_expenses_per_day.should == 0.00
       end
       it "should return zero with other expense types in database" do
+        foo
+        Expense.annual_expenses_per_day.should == 0.00
       end
     end
 
     context "with one annual expense in the database" do
       it "should return the one annual expense calc per day with no other expenses" do
+        grille
+        Expense.annual_expenses_per_day.should == 0.48
       end
       it "should only return the annual expense with other types of expenses in db" do
+        foo
+        bar
+        grille
+        Expense.annual_expenses_per_day.should == 0.48
       end
     end
     context " with many annual expenses in the database" do
       it "should return the sum of all annual expenses divided by num of days in year" do
+        grille
+        yam
+        drink
+        Expense.annual_expenses_per_day.should == 6.64
       end
       it "should return only the sum of annual expenses with other types of expenses in db" do
+        grille
+        yam
+        drink
+        foo
+        bar
+        Expense.annual_expenses_per_day.should == 6.64
       end
     end
   end

@@ -60,15 +60,32 @@ class Expense
     expense
   end
 
-  def annual_expenses_per_day
-    statement = "SELECT SUM(amount) FROM expenses WHERE recurrance = annually;"
-    total_annual_expenses = Database.connection.execute(statement)
-    days_in_year = 365
-    annual_expenses_per_day = total_annual_expenses / days_in_year
-    annual_expenses
+
+  def self.annual_expenses_per_day
+    statement = "SELECT amount FROM expenses WHERE recurrance = 'annually'"
+    annual_expense = Database.connection.execute(statement)
+    puts "ANNUAL-------"
+    print annual_expense
+    total_annual_expense = 0
+    if annual_expense.empty?
+      return 0
+    else
+      annual_expense.each do |expense|
+        total_annual_expense += expense[0]
+      end
+    end
+    annual_expenses_per_day = (total_annual_expense / 365.00).round(2)
   end
 
-  def monthly_expenses_per_day
+=begin
+  def self.annual_expenses_per_day
+    statement = "SELECT SUM(amount), recurrance FROM expenses GROUP BY recurrance;"
+    total_annual_expenses = Database.connection.execute(statement)
+    days_in_year = 365
+    expenses_per_day = total_annual_expenses / days_in_year
+  end
+=end
+  def self.monthly_expenses_per_day
 
   end
 
