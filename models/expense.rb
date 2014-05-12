@@ -125,6 +125,11 @@ class Expense
     end
   end
 
+  def remove
+    statement = "DELETE FROM expenses WHERE name = ?;"
+    Database.connection.execute(statement, self.name)
+  end
+
   private
 
   def valid_amount?

@@ -147,7 +147,21 @@ describe Expense do
       it "should not save it to the database" do
       end
     end
+  end
 
+  describe "#remove" do
+      let!(:door){Expense.create("door", 225, "monthly", "bar description")}
+      let!(:grille){Expense.create("grille", 175, "annually", "grille description")}
+      let!(:yam){Expense.create("yam", 250, "annually", "yam description")}
+    context "with a valid deletem message" do
+      before {grille.remove}
+      it "should reduce the size of the database" do
+        Expense.count.should == 2
+      end
+      it "should not have a name of that expense in the db" do
+        Expense.find_by_name("grille").should be_nil
+      end
+    end
   end
 
 
