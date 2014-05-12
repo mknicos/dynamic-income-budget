@@ -42,7 +42,7 @@ describe Expense do
     end
   end
 
-  describe ".update_name" do
+  describe "#update_name" do
     let(:original_expense){Expense.create("foo", 100, "monthly", "foo description")}
     let!(:original_id){original_expense.id}
     context "with an invaild update" do
@@ -85,6 +85,37 @@ describe Expense do
   end
 
   describe ".update_amount" do
+    let!(:bar){Expense.create("bar", 200, "monthly", "bar description")}
+    let(:original_expense){Expense.create("foo", 100, "monthly", "foo description")}
+    let!(:original_id){original_expense.id}
+    let(:find_original_expense){Expense.find_by_name("foo")}
+    context "with a valid amount" do
+      it "should update the amount in database" do
+        original_expense.update_amount(375)
+        find_original_expense.amount.should == 375
+      end
+      it "should not change the number of rows in the db" do
+        Expense.count.should == 2
+      end
+      it "the updated expense should retain the same id" do
+        original_expense.update_amount(375)
+        find_original_expense.id.should == original_id
+      end
+    end
+    context "with an invalid amount" do
+      it "should not update with a negative amount entered" do
+        original_expense.update_amount(-200)
+        find_original_expense.amount.should == 100
+      end
+      it "should not update with any non number characters" do
+        original_expense.update_amount("abc")
+        find_original_expense.amount.should == 100
+      end
+      it "should not change the number of rows in the database" do
+        original_expense.update_amount("abc")
+        Expense.count.should == 2
+      end
+    end
   end
 
   describe "#create" do
