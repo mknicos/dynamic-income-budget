@@ -1,30 +1,21 @@
-require 'sqlite3'
+require 'rubygems'
+require 'bundler/setup'
+require 'active_record'
+
+project_root = File.dirname(File.absolute_path(__FILE__))
+Dir.glob(project_root + "/../models/*.rb").each{|f| require f}
+
 require 'logger'
+require 'yaml'
 
-class Database < SQLite3::Database
-  def initialize(database)
-    super(database)
-  end
-
+class Database
   def self.environment= environment
     @@environment = environment
+    Database.connect_to_database
   end
 
-  def self.connection
-    @connection ||= Database.new("db/budget_#{@@environment}.sqlite3")
-  end
-
-  def execute(statement, bind_vars = [])
-    Database.logger.info("Executing: #{statement} with: #{bind_vars}")
-    super(statement, bind_vars)
-  end
-
-  def Database.logger
-    @@logger ||= Logger.new("log/#{@@environment}.log")
-  end
-
-  def create_tables
-    db = Database.connection
-    db.execute("CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount INTEGER, recurrance TEXT, description TEXT, dueDate DATE)")
+  def self.connect_to_database
+    connection_details = YAML::load(File.open('config/database.yml'))
+    ActiveRecord::Base.establish_connection(connection_details[@@environment])
   end
 end

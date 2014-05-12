@@ -1,6 +1,6 @@
 $LOAD_PATH << "models"
-require 'expense'
 require 'database'
+require 'expense'
 
 Database.environment = 'test'
 
@@ -17,7 +17,7 @@ RSpec.configure do |config|
   config.order = 'random'
 
   config.after(:each) do
-  Database.connection.execute("DELETE FROM expenses;")
+    Expense.destroy_all
   end
 end
 

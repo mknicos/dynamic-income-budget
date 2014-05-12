@@ -1,39 +1,63 @@
 require 'rspec/core/rake_task'
-require 'sqlite3'
 
 $LOAD_PATH << "lib"
 require 'database'
 
 RSpec::Core::RakeTask.new(:spec)
 
-task :default => [:prepare_database, :test_prepare, :spec]
+task :default => ['db:test:prepare', :spec]
 
-desc 'create the production database setup'
-task :prepare_database do
-  production_db = 'db/budget_production.sqlite3'
-  Database.environment = 'production'
-  unless File.exist?(production_db)
-    Database.connection.create_tables
+db_namespace = namespace :db do
+  desc "Migrate the db"
+  task :migrate do
+    Database.environment = 'production'
+    Database.connect_to_database
+    ActiveRecord::Migrator.migrate("db/migrate/")
+    db_namespace["schema:dump"].invoke
+  end
+  namespace :test do
+    desc "Prepare the test database"
+    task :prepare do
+      Database.environment = 'test'
+      Database.connect_to_database
+      file = ENV['SCHEMA'] || "db/schema.rb"
+      if File.exists?(file)
+        load(file)
+      else
+        abort %{#{file} doesn't exist yet. Run `rake db:migrate` to create it.}
+      end
+    end
+  end
+  desc 'Rolls the schema back to the previous version (specify steps w/ STEP=n).'
+  task :rollback do
+    Database.environment = 'production'
+    Database.connect_to_database
+    step = ENV['STEP'] ? ENV['STEP'].to_i : 1
+    ActiveRecord::Migrator.rollback(ActiveRecord::Migrator.migrations_paths, step)
+    db_namespace["schema:dump"].invoke
+  end
+  namespace :schema do
+    desc 'Create a db/schema.rb file that can be portably used against any DB supported by AR'
+    task :dump do
+      require 'active_record/schema_dumper'
+      Database.environment = 'production'
+      Database.connect_to_database
+      filename = ENV['SCHEMA'] || "db/schema.rb"
+      File.open(filename, "w:utf-8") do |file|
+        ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+      end
+    end
   end
 end
-
-desc 'prepare the test database'
-task :test_prepare do
-  test_db = 'db/budget_test.sqlite3'
-  File.delete(test_db) if File.exist?(test_db)
-  Database.environment = 'test'
-  Database.connection.create_tables
-end
-
 
 #---Quick Methods to show what's in the databases---#
 desc 'print test database to terminal'
 task :print_test_db do
-  Database.environment = 'test'
-  db = Database.new('db/budget_test.sqlite3')
+  Database.environment = 'production'
+  Databse.connect_to_database
 
   puts "-------EXPENSES-------"
-  expenses = db.execute("SELECT * FROM expenses")
+  expenses = Expense.execute("SELECT * FROM expenses")
   expenses.each do |expense|
     puts expense
     puts "====================="
@@ -43,10 +67,10 @@ end
 desc 'print production database to terminal'
 task :print_db do
   Database.environment = 'production'
-  db = Database.new('db/budget_production.sqlite3')
+  Databse.connect_to_database
 
   puts "-------EXPENSES-------"
-  expenses = db.execute("SELECT * FROM expenses")
+  expenses = Expense.execute("SELECT * FROM expenses")
   expenses.each do |expense|
     puts expense
     puts "====================="

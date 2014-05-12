@@ -3,17 +3,17 @@ require_relative '../spec_helper'
 describe Expense do
 
   describe "#new" do
-    subject { Expense.new("water bill", 100, "annual", "lets me shower")}
+    subject {Expense.new(name: "water bill", amount: 100, recurrance: "annually", description: "lets me shower")}
 
    its(:name) { should == "water bill"}
    its(:amount) { should == 100}
-   its(:recurrance) { should == "annual"}
+   its(:recurrance) { should == "annually"}
    its(:description) { should == "lets me shower"}
   end
 
   describe "#save" do
-    let(:result){ Database.connection.execute("SELECT * FROM expenses") }
-    let(:expense){ Expense.new("water bill", 100, "annually", "lets me shower") }
+    let(:result){ Expense.connection.execute("SELECT * FROM expenses") }
+    let(:expense){ Expense.new(name: "water bill", amount: 100, recurrance: "annually", description: "lets me shower") }
     context "with a valid expense" do
       before do
         expense.stub(:valid?){ true }
@@ -43,11 +43,11 @@ describe Expense do
   end
 
   describe "#update_name" do
-    let(:original_expense){Expense.create("foo", 100, "monthly", "foo description")}
+    let(:original_expense){Expense.create(name: "foo", amount: 100, recurrance: "monthly", description: "foo description")}
     let!(:original_id){original_expense.id}
     context "with an invaild update" do
       before do
-        Expense.create("grille", 200, "annually", "grille description")
+        Expense.create(name: "grille", amount: 200, recurrance: "annually", description: "grille description")
         original_expense.update_name("grille")
       end
       it "should not change the name" do
@@ -60,7 +60,7 @@ describe Expense do
         original_expense.id.should == original_id
       end
       it "should not update to an existing name" do
-        grille = Expense.create("grille", 100, "annualy", "grille description")
+        grille = Expense.create(name: "grille", amount: 100, recurrance: "annualy", description: "grille description")
         grille.update_name("foo")
         Expense.find_by_name("foo").id.should == original_id
       end
@@ -119,8 +119,8 @@ describe Expense do
   end
 
   describe "#create" do
-    let(:result){ Database.connection.execute("SELECT * FROM expenses") }
-    let(:expense){ Expense.create("water bill", 100, "annually", "lets me shower") }
+    let(:result){ Expense.connection.execute("SELECT * FROM expenses") }
+    let(:expense){ Expense.create(name: "water bill", amount: 100, recurrance: "annually", description: "lets me shower") }
 
     context "with a valid expense" do
       before do
@@ -150,11 +150,11 @@ describe Expense do
   end
 
   describe "#remove" do
-      let!(:door){Expense.create("door", 225, "monthly", "bar description")}
-      let!(:grille){Expense.create("grille", 175, "annually", "grille description")}
-      let!(:yam){Expense.create("yam", 250, "annually", "yam description")}
-    context "with a valid deletem message" do
-      before {grille.remove}
+      let!(:door){Expense.create(name: "door", amount: 225, recurrance: "monthly", description: "bar description")}
+      let!(:grille){Expense.create(name: "grille", amount: 175, recurrance: "annually", description: "grille description")}
+      let!(:yam){Expense.create(name: "yam", amount: 250, recurrance: "annually", description: "yam description")}
+    context "with a valid delete message" do
+      before {grille.delete}
       it "should reduce the size of the database" do
         Expense.count.should == 2
       end
@@ -167,11 +167,11 @@ describe Expense do
 
 
   describe "#valid" do
-    let(:result) {Database.connection.execute("SELECT name FROM expenses")}
-    let(:expense1){ Expense.new("water bill", 100, "monthly", "lets me shower") }
-    let(:expense2){ Expense.new("electric bill", 200, "monthly", "Nashville Electric Company") }
-    let(:expense3){ Expense.new("electric bill", 100, "annually", "Nashville Electric Company") }
-    let(:expense4){ Expense.new("2345", 100, "annualy", "Nashville Electric Company") }
+    let(:result) {Expense.connection.execute("SELECT name FROM expenses")}
+    let(:expense1){ Expense.new(name:"water bill", amount: 100, recurrance: "monthly", description: "lets me shower") }
+    let(:expense2){ Expense.new(name:"electric bill", amount: 200, recurrance: "monthly", description: "Nashville Electric Company") }
+    let(:expense3){ Expense.new(name:"electric bill", amount: 100, recurrance: "annually", description: "Nashville Electric Company") }
+    let(:expense4){ Expense.new(name:"2345", amount: 100, recurrance: "annualy", description: "Nashville Electric Company") }
 
     it "should return true with a unique name" do
         expense2.should be_valid
@@ -196,10 +196,10 @@ describe Expense do
     end
     context "with multiple expenses in the database" do
       before do
-        Expense.create("water bill", 100, "annualy", "lets me shower")
-        Expense.create("cable bill", 100, "annualy", "lets me shower")
-        Expense.create("electric bill", 100, "annualy", "lets me shower")
-        Expense.create("insurance", 100, "monthly", "lets me shower")
+        Expense.create(name: "water bill", amount: 100, recurrance: "annualy", description: "lets me shower")
+        Expense.create(name: "cable bill", amount: 100, recurrance: "annualy", description: "lets me shower")
+        Expense.create(name: "electric bill", amount: 100, recurrance: "annualy", description: "lets me shower")
+        Expense.create(name: "insurance", amount: 100, recurrance: "monthly", description: "lets me shower")
       end
 
       it "should return the correct number of rows in database" do
@@ -209,11 +209,11 @@ describe Expense do
   end
 
   describe ".annual_expenses_per_day" do
-      let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
-      let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
-      let(:grille){Expense.create("grille", 175, "annually", "grille description")}
-      let(:yam){Expense.create("yam", 250, "annually", "yam description")}
-      let(:drink){Expense.create("drink", 2000, "annually", "drink description")}
+      let(:foo){Expense.create(name:"foo", amount: 120, recurrance: "monthly", description: "foo description")}
+      let(:bar){Expense.create(name:"bar", amount: 95, recurrance: "monthly", description: "bar description")}
+      let(:grille){Expense.create(name:"grille", amount: 175, recurrance: "annually", description: "grille description")}
+      let(:yam){Expense.create(name:"yam", amount: 250, recurrance: "annually", description: "yam description")}
+      let(:drink){Expense.create(name:"drink", amount: 2000, recurrance: "annually", description: "drink description")}
     context "with no annual expenses in the databse" do
       it "should return zero with no expenses in database" do
         Expense.annual_expenses_per_day.should == 0.00
@@ -249,12 +249,12 @@ describe Expense do
   end
 
   describe ".monthly_expenses_per_day" do
-      let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
-      let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
-      let(:door){Expense.create("door", 225, "monthly", "bar description")}
-      let(:grille){Expense.create("grille", 175, "annually", "grille description")}
-      let(:yam){Expense.create("yam", 250, "annually", "yam description")}
-      let(:drink){Expense.create("drink", 2000, "annually", "drink description")}
+      let(:foo){Expense.create(name:"foo", amount:120, recurrance:"monthly", description:"foo description")}
+      let(:bar){Expense.create(name:"bar", amount:95, recurrance:"monthly", description:"bar description")}
+      let(:door){Expense.create(name:"door", amount:225, recurrance:"monthly", description:"bar description")}
+      let(:grille){Expense.create(name:"grille", amount:175, recurrance:"annually", description:"grille description")}
+      let(:yam){Expense.create(name:"yam", amount:250, recurrance:"annually", description:"yam description")}
+      let(:drink){Expense.create(name:"drink", amount:2000, recurrance:"annually", description:"drink description")}
     context "with no monthly expenses in the databse" do
       it "should return zero with no expenses in database" do
         Expense.monthly_expenses_per_day.should == 0.00
@@ -292,12 +292,12 @@ describe Expense do
   end
 
   describe ".total_expenses_per_day" do
-      let(:foo){Expense.create("foo", 120, "monthly", "foo description")}
-      let(:bar){Expense.create("bar", 95, "monthly", "bar description")}
-      let(:door){Expense.create("door", 225, "monthly", "bar description")}
-      let(:grille){Expense.create("grille", 175, "annually", "grille description")}
-      let(:yam){Expense.create("yam", 250, "annually", "yam description")}
-      let(:drink){Expense.create("drink", 2000, "annually", "drink description")}
+      let(:foo){Expense.create(name:"foo", amount:120, recurrance:"monthly", description:"foo description")}
+      let(:bar){Expense.create(name:"bar", amount:95, recurrance:"monthly", description:"bar description")}
+      let(:door){Expense.create(name:"door", amount:225, recurrance:"monthly", description:"bar description")}
+      let(:grille){Expense.create(name:"grille", amount:175, recurrance:"annually", description:"grille description")}
+      let(:yam){Expense.create(name:"yam", amount:250, recurrance:"annually", description:"yam description")}
+      let(:drink){Expense.create(name:"drink", amount:2000, recurrance:"annually", description:"drink description")}
 
     context "with no expenses in database" do
       it "should return zero" do
@@ -329,10 +329,10 @@ describe Expense do
       end
     end
     context "with multiple expenses in the database" do
-      let(:water_bill){Expense.new("water bill", 100, "monthly", "lets me shower")}
+      let(:water_bill){Expense.new(name:"water bill", amount:100, recurrance:"monthly", description:"lets me shower")}
       before do
-        Expense.new("electric bill", 100, "monthly", "lets me see at night")
-        Expense.new("cable bill", 100, "monthly", "lets me watch tv")
+        Expense.new(name:"electric bill", amount:100, recurrance:"monthly", description:"lets me see at night").save
+        Expense.new(name:"cable bill", amount:100, recurrance:"monthly", description:"lets me watch tv").save
         water_bill.save
       end
       it "should return the last one inserted" do
@@ -349,9 +349,9 @@ describe Expense do
       Expense.count.should == 0
     end
     it "should return the correct number of rows with multiple injuries in database" do
-      Expense.new("water bill", 100, "monthly", "lets me shower").save
-      Expense.new("electric bill", 100, "monthly", "lets me see at night").save
-      Expense.new("cable bill", 100, "monthly", "lets me watch tv").save
+      Expense.new(name:"water bill", amount:100, recurrance:"monthly", description:"lets me shower").save
+      Expense.new(name:"electric bill", amount:100, recurrance:"monthly", description:"lets me see at night").save
+      Expense.new(name:"cable bill", amount:100, recurrance:"monthly", description:"lets me watch tv").save
       Expense.count.should == 3
     end
   end
@@ -363,11 +363,11 @@ describe Expense do
       end
     end
     context "with expense by that name in the database" do
-      let(:water_bill){Expense.new("water bill", 100, "monthly", "lets me shower")}
+      let(:water_bill){Expense.new(name:"water bill", amount:100, recurrance:"monthly", description:"lets me shower").save}
       before do
         water_bill.save
-        Expense.new("electric bill", 100, "monthly", "lets me see at night").save
-        Expense.new("cable bill", 100, "monthly", "lets me watch tv").save
+        Expense.new(name:"electric bill", amount:100, recurrance:"monthly", description:"lets me see at night").save
+        Expense.new(name:"cable bill", amount:100, recurrance:"monthly", description:"lets me watch tv").save
       end
       it "should return the injury with that name" do
         Expense.find_by_name("water bill").name.should == "water bill"
