@@ -42,6 +42,51 @@ describe Expense do
     end
   end
 
+  describe ".update_name" do
+    let(:original_expense){Expense.create("foo", 100, "monthly", "foo description")}
+    let!(:original_id){original_expense.id}
+    context "with an invaild update" do
+      before do
+        Expense.create("grille", 200, "annually", "grille description")
+        original_expense.update_name("grille")
+      end
+      it "should not change the name" do
+        Expense.find_by_name("foo").should_not be_nil
+      end
+      it "should not change the number of rows in the database" do
+        Expense.count.should == 2
+      end
+      it "should retain its original id" do
+        original_expense.id.should == original_id
+      end
+      it "should not update to an existing name" do
+        grille = Expense.create("grille", 100, "annualy", "grille description")
+        grille.update_name("foo")
+        Expense.find_by_name("foo").id.should == original_id
+      end
+    end
+    context "with a valid update" do
+      before do
+        Expense.create("yam", 250, "annually", "yam description")
+        Expense.create("drink", 2000, "annually", "drink description")
+        original_expense.update_name("water")
+      end
+      let(:updated_expense){Expense.find_by_name("water")}
+      it "the number of rows in database should not change" do
+        Expense.count.should == 3
+      end
+      it "the updated expense should retain its original id" do
+        updated_expense.id.should == original_id
+      end
+      it "the name should not be nil" do
+        updated_expense.should_not be_nil
+      end
+    end
+  end
+
+  describe ".update_amount" do
+  end
+
   describe "#create" do
     let(:result){ Database.connection.execute("SELECT * FROM expenses") }
     let(:expense){ Expense.create("water bill", 100, "annually", "lets me shower") }

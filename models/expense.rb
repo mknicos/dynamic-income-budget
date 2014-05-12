@@ -1,6 +1,7 @@
 require 'database'
 class Expense
-  attr_reader :name, :amount, :recurrance, :description, :id, :due_date
+  attr_reader :amount, :recurrance, :description, :id, :due_date
+  attr_accessor :name
 
   def initialize(name, amount, recurrance, desc)
     @name = name
@@ -101,6 +102,18 @@ class Expense
   def self.total_expenses_per_day
     monthly_expenses_per_day + annual_expenses_per_day
   end
+
+  def update_name(new_name)
+    self.name = new_name
+    if self.valid?
+      statement = "UPDATE expenses SET name = ? where id = ?;"
+      Database.connection.execute(statement,[new_name, self.id])
+      true
+    else
+      false
+    end
+  end
+
 
 
 =begin
