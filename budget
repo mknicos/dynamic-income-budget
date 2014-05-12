@@ -33,9 +33,9 @@ end
 def add_expense_selected
   puts "Another Expense?! You need to be more careful"
   puts "What is the name of the new Expense?"
-  expense_name = gets.chomp.gsub(/\W+/, '')
+  expense_name = gets.chomp.downcase
 
-  expense_recurs = get_expense_recurrance.gsub(/\W+/, '')
+  expense_recurs = get_expense_recurrance
 
 
   puts "What is the amount of this expense?"
@@ -46,7 +46,9 @@ def add_expense_selected
   expense_desc = gets.chomp
   expense = Expense.new(expense_name, expense_amount, expense_recurs, expense_desc)
   if expense.save
-    puts "#{expense_name} has been saved successfully"
+    puts "============================="
+    puts "#{expense_name} costing $#{expense_amount} #{expense_recurs} has been saved successfully"
+    puts "============================="
     display_main_menu
   else
     puts "#{expense_name} was not valid, please try again with a different name"
@@ -56,7 +58,7 @@ end
 
 def edit_expense_selected
   puts "What's the name of the expense you would like to edit?"
-  name = gets.chomp
+  name = gets.chomp.downcase
   print <<EOS
   What would you like to edit?
   ---------------------------
@@ -65,19 +67,17 @@ def edit_expense_selected
   3. Main Menu
   --------------------------
 EOS
-  selection = nil
-  while selection != "1" or selection != "2" or selection != "3"
-    puts "Please Make A Selection: "
+  selection = gets.chomp
+  while selection != "1" and selection != "2" and selection != "3"
+    puts "Invalid, Please Make A Selection: "
     selection = gets.chomp
   end
 
   case selection
   when "1"
-  old_name = slection
-    edit_name_selected(old_name)
+    edit_name_selected(name)
   when "2"
-    expense_name = selected
-    edit_amount_selected(expense_name)
+    edit_amount_selected(name)
   when "3"
     display_main_menu
   end
@@ -111,24 +111,27 @@ def edit_amount_selected(expense_name)
     new_amount = gets.chomp.to_i
     if expense.update_amount(new_amount)
       "#{expense_name} amount is now #{new_amount} and recurs #{expense.recurrance}"
+      display_main_menu
     else
       puts "I'm sorry, please try again"
       edit_amount_selected(expense_name)
     end
   end
-  display_main_menu
 end
 
 def view_expenses_selected
-  expenses = Expenses.all
+  expenses = Expense.all
   puts "______EXPENSES______"
-  expenses.each |expense| do
-    puts expense[1]
-    puts expense[2]
-    puts expense[3]
+  print "\n"
+  expenses.each do |expense|
+    puts expense[1].upcase
+    print "$" + expense[2].to_s + "\s"
+    print expense[3] + "\n"
     puts expense[4]
+    puts "___________________"
+    print "\n"
   end
-  next = <<EOS
+  next_menu = <<EOS
 
 What would you like to do now?
 -----------------------------
@@ -140,7 +143,7 @@ What would you like to do now?
 Type 'q' to quit
 EOS
 
-  print next
+  print next_menu
   user_selection = gets.chomp
 
   case user_selection
@@ -167,7 +170,7 @@ def delete_expense_selected
   puts "Congrats! One Less Expense!"
   puts "What expense would you like to delete?"
   puts "Type 'b' to go back"
-  expense_name = gets.chomp
+  expense_name = gets.chomp.downcase
   if expense_name == "b"
     display_main_menu
   else
@@ -200,28 +203,27 @@ def get_expense_recurrance
 
   puts expense_recurs_menu
 
-  expense_recurs = gets.chomp.to_i
+  expense_recurs = gets.chomp
   if expense_recurs == 0
     display_main_menu
-  elsif expense_recurs == 1
-    expense_recurs = 'once'
-  elsif expense_recurs == 2
-    expense_recurs = 'weekly'
-  elsif expense_recurs == 3
-    expense_recurs == 'monthly'
-  elsif expense_recurs == 4
-    expense_recurs = 'annually'
+  elsif expense_recurs == "1"
+    return 'once'
+  elsif expense_recurs == "2"
+    return 'weekly'
+  elsif expense_recurs == "3"
+    return 'monthly'
+  elsif expense_recurs == "4"
+    return 'annually'
   else
     puts "Input Invalid"
     get_expense_recurrance
   end
-  expense_recurs
 end
 
 #----------BUDGET VIEW-----------#
 
 def view_budget_selected
-  expenses_per_day = Expense.total_expenses_per_day
+  expenses_per_day = Expense.total_expenses_per_day.round(2)
   text =<<EOS
 --------------------
 Since you are reading this,
