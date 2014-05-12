@@ -29,6 +29,7 @@ end
 #---Quick Methods to show what's in the databases---#
 desc 'print test database to terminal'
 task :print_test_db do
+  Database.environment = 'test'
   db = Database.new('db/budget_test.sqlite3')
 
   puts "-------EXPENSES-------"
@@ -37,30 +38,17 @@ task :print_test_db do
     puts expense
     puts "====================="
   end
-
-  puts "-------INCOMES-------"
-  incomes = db.execute("SELECT * FROM incomes")
-  incomes.each do |income|
-    puts income
-    puts "====================="
-  end
 end
 
 desc 'print production database to terminal'
 task :print_db do
+  Database.environment = 'production'
   db = Database.new('db/budget_production.sqlite3')
 
   puts "-------EXPENSES-------"
   expenses = db.execute("SELECT * FROM expenses")
   expenses.each do |expense|
     puts expense
-    puts "====================="
-  end
-
-  puts "-------INCOMES-------"
-  incomes = db.execute("SELECT * FROM incomes")
-  incomes.each do |income|
-    puts income
     puts "====================="
   end
 end
