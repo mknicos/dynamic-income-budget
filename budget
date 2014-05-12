@@ -4,7 +4,7 @@ $LOAD_PATH << "lib"
 $LOAD_PATH << "models"
 
 require 'expense'
-#require 'income'
+Database.environment = ENV["ENVIRONMENT"] || "production"
 
 
 def display_main_menu
@@ -15,15 +15,16 @@ def display_main_menu
   elsif user_selection == '1'
     view_budget_selected
   elsif user_selection == '2'
-    add_expense_selected
+    view_expenses_selected
   elsif user_selection == '3'
-    add_income_selected
+    add_expense_selected
   else
     puts 'Invalid Selection'
     display_main_menu
   end
 end
 
+#----------MAIN MENU SELECTIONS-------------#
 def quit_selected
   puts "Goodbye!"
   exit
@@ -32,9 +33,9 @@ end
 def add_expense_selected
   puts "Another Expense?! You need to be more careful"
   puts "What is the name of the new Expense?"
-  expense_name = gets.chomp
+  expense_name = gets.chomp.gsub(/\W+/, '')
 
-  expense_recurs = get_expense_recurrance
+  expense_recurs = get_expense_recurrance.gsub(/\W+/, '')
 
 
   puts "What is the amount of this expense?"
@@ -44,15 +45,156 @@ def add_expense_selected
   puts "Write a short description of the expense:"
   expense_desc = gets.chomp
   expense = Expense.new(expense_name, expense_amount, expense_recurs, expense_desc)
-  expense.save
-
-  #NEED TO ADD EXPENSE
+  if expense.save
+    puts "#{expense_name} has been saved successfully"
+    display_main_menu
+  else
+    puts "#{expense_name} was not valid, please try again with a different name"
+    add_expense_selected
+  end
 end
 
+def edit_expense_selected
+  puts "What's the name of the expense you would like to edit?"
+  name = gets.chomp
+  print <<EOS
+  What would you like to edit?
+  ---------------------------
+  1. The Name of the Expense
+  2. The Amount of the Expense
+  3. Main Menu
+  --------------------------
+EOS
+  selection = nil
+  while selection != "1" or selection != "2" or selection != "3"
+    puts "Please Make A Selection: "
+    selection = gets.chomp
+  end
 
+  case selection
+  when "1"
+  old_name = slection
+    edit_name_selected(old_name)
+  when "2"
+    expense_name = selected
+    edit_amount_selected(expense_name)
+  when "3"
+    display_main_menu
+  end
+end
 
+def edit_name_selected(old_name)
+  expense = Expense.find_by_name(old_name)
+  if expense == nil
+    puts "I'm Sorry, there is no expense by that name, try again"
+    edit_expense_selected
+  else
+    puts "Please Enter The New Name: "
+    new_name = gets.chomp
+    if expense.update_name(new_name)
+      puts "This is expense is now named #{new_name}, and has been saved"
+    else
+      puts "Sorry that name is invalid, or already used, try again"
+      edit_name_selected(old_name)
+    end
+    display_main_menu
+  end
+end
 
-#-------------EXPENSES-------------#
+def edit_amount_selected(expense_name)
+  expense = Expense.find_by_name(expense_name)
+  if expense == nil
+    puts "I'm Sorry there is no expense by that name, try again"
+    edit_expense_selected
+  else
+    puts "Please Enter The New Amount for #{expense.name}, which occurs #{expense.recurrance} "
+    new_amount = gets.chomp.to_i
+    if expense.update_amount(new_amount)
+      "#{expense_name} amount is now #{new_amount} and recurs #{expense.recurrance}"
+    else
+      puts "I'm sorry, please try again"
+      edit_amount_selected(expense_name)
+    end
+  end
+  display_main_menu
+end
+
+def view_expenses_selected
+  expenses = Expenses.all
+  puts "______EXPENSES______"
+  expenses.each |expense| do
+    puts expense[1]
+    puts expense[2]
+    puts expense[3]
+    puts expense[4]
+  end
+  next = <<EOS
+
+What would you like to do now?
+-----------------------------
+1. Add Expense
+2. Edit Expense
+3. Delete Expense
+4. Main Menu
+---------------------------
+Type 'q' to quit
+EOS
+
+  print next
+  user_selection = gets.chomp
+
+  case user_selection
+  when "1"
+    add_expense_selected
+  when "2"
+    edit_expense_selected
+  when "3"
+    delete_expense_selected
+  when "4"
+    display_main_menu
+  when "q"
+    exit
+  when "Q"
+    exit
+  else
+    puts "invalid input"
+    display_main_menu
+  end
+end
+
+def delete_expense_selected
+  puts "------------------"
+  puts "Congrats! One Less Expense!"
+  puts "What expense would you like to delete?"
+  puts "Type 'b' to go back"
+  expense_name = gets.chomp
+  if expense_name == "b"
+    display_main_menu
+  else
+    expense = Expense.find_by_name(expense_name)
+    if expense == nil
+      puts "There is no expense by that name, try again"
+      delete_expense_selected
+    else
+      puts "Are You Sure you would like to delete:"
+      puts "#{expense_name} for #{expense.amount} recurring #{expense.recurrance} ?"
+      puts "Type 'y' or 'n'"
+      confirm = gets.chomp
+
+      case confirm
+      when 'n'
+        view_expenses_selected
+      when 'y'
+        expense.remove
+        display_main_menu
+      else
+        puts "Invalid input, try again"
+        delete_expense_selected
+      end
+
+    end
+  end
+end
 
 def get_expense_recurrance
 
@@ -76,17 +218,23 @@ def get_expense_recurrance
   expense_recurs
 end
 
-
-#-----------INCOMES--------------#
-
-def add_income_selected
-  puts "add_income"
-end
-
 #----------BUDGET VIEW-----------#
 
 def view_budget_selected
-  puts "view budget"
+  expenses_per_day = Expense.total_expenses_per_day
+  text =<<EOS
+--------------------
+Since you are reading this,
+it means you woke up today.
+Congrats.
+Unfortunately based on your
+expenses, you've already
+spent $#{expenses_per_day}.
+Maybe you should cut back?
+-------------------
+EOS
+  print text
+  display_main_menu
 end
 
 
@@ -110,12 +258,11 @@ end
 
 def menu
 <<EOS
-Welcome!
 --------------------
 What would you like to do?
 1. View Your Budget
-2. Add An Expense
-3. Add An Income
+2. View Your Expenses
+3. Add An Expense
 --------------------
 Type 'Q' to Quit
 --------------------
