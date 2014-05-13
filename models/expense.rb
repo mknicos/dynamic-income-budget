@@ -5,6 +5,8 @@ class Expense < ActiveRecord::Base
 
 validates :name, uniqueness: { message: "already exists." }
 validates :name, format: { with: /[a-zA-Z]/, message: "is not a valid injury name, as it does not include any letters." }
+validates_numericality_of :amount, greater_than: 0
+validates_numericality_of :amount, only_integer: true
 
   def self.annual_expenses_per_day
     statement = "SELECT amount FROM expenses WHERE recurrance = 'annually'"

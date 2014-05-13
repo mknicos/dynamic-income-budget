@@ -48,10 +48,10 @@ describe Expense do
     context "with an invaild update" do
       before do
         Expense.create(name: "grille", amount: 200, recurrance: "annually", description: "grille description")
-        original_expense.update_name("grille")
+        original_expense.update(name:"grille")
       end
       it "should not change the name" do
-        Expense.find_by_name("foo").should_not be_nil
+        Expense.find_by(name:"foo").should_not be_nil
       end
       it "should not change the number of rows in the database" do
         Expense.count.should == 2
@@ -61,17 +61,17 @@ describe Expense do
       end
       it "should not update to an existing name" do
         grille = Expense.create(name: "grille", amount: 100, recurrance: "annualy", description: "grille description")
-        grille.update_name("foo")
-        Expense.find_by_name("foo").id.should == original_id
+        grille.update(name:"foo")
+        Expense.find_by(name:"foo").id.should == original_id
       end
     end
     context "with a valid update" do
       before do
-        Expense.create("yam", 250, "annually", "yam description")
-        Expense.create("drink", 2000, "annually", "drink description")
-        original_expense.update_name("water")
+        Expense.create(name:"yam", amount: 250, recurrance:"annually", description: "yam description")
+        Expense.create(name:"drink", amount: 2000, recurrance: "annually", description: "drink description")
+        original_expense.update(name: "water")
       end
-      let(:updated_expense){Expense.find_by_name("water")}
+      let(:updated_expense){Expense.find_by(name:"water")}
       it "the number of rows in database should not change" do
         Expense.count.should == 3
       end
@@ -85,34 +85,34 @@ describe Expense do
   end
 
   describe ".update_amount" do
-    let!(:bar){Expense.create("bar", 200, "monthly", "bar description")}
-    let(:original_expense){Expense.create("foo", 100, "monthly", "foo description")}
+    let!(:bar){Expense.create(name:"bar", amount: 200, recurrance: "monthly", description: "bar description")}
+    let(:original_expense){Expense.create(name: "foo", amount: 100, recurrance: "monthly", description: "foo description")}
     let!(:original_id){original_expense.id}
-    let(:find_original_expense){Expense.find_by_name("foo")}
+    let(:find_original_expense){Expense.find_by(name:"foo")}
     context "with a valid amount" do
       it "should update the amount in database" do
-        original_expense.update_amount(375)
+        original_expense.update(amount: 375)
         find_original_expense.amount.should == 375
       end
       it "should not change the number of rows in the db" do
         Expense.count.should == 2
       end
       it "the updated expense should retain the same id" do
-        original_expense.update_amount(375)
+        original_expense.update(amount:375)
         find_original_expense.id.should == original_id
       end
     end
     context "with an invalid amount" do
       it "should not update with a negative amount entered" do
-        original_expense.update_amount(-200)
+        original_expense.update(amount: -200)
         find_original_expense.amount.should == 100
       end
       it "should not update with any non number characters" do
-        original_expense.update_amount("abc")
+        original_expense.update(amount:"abc")
         find_original_expense.amount.should == 100
       end
       it "should not change the number of rows in the database" do
-        original_expense.update_amount("abc")
+        original_expense.update(amount:"abc")
         Expense.count.should == 2
       end
     end
@@ -136,7 +136,7 @@ describe Expense do
         Expense.count.should == 1
       end
       it "should be found by name in  the database" do
-        Expense.find_by_name("water bill").name.should == "water bill"
+        Expense.find_by(name:"water bill").name.should == "water bill"
       end
       it "should insert a row into database" do
         result.count == 1
@@ -159,7 +159,7 @@ describe Expense do
         Expense.count.should == 2
       end
       it "should not have a name of that expense in the db" do
-        Expense.find_by_name("grille").should be_nil
+        Expense.find_by(name: "grille").should be_nil
       end
     end
   end
@@ -359,21 +359,21 @@ describe Expense do
   describe ".find_by_name" do
     context "with no expenses in the database" do
       it "should return nil" do
-        Expense.find_by_name("Foo").should be_nil
+        Expense.find_by(name: "Foo").should be_nil
       end
     end
     context "with expense by that name in the database" do
-      let(:water_bill){Expense.new(name:"water bill", amount:100, recurrance:"monthly", description:"lets me shower").save}
+      let(:water_bill){Expense.new(name:"water bill", amount:100, recurrance:"monthly", description:"lets me shower")}
       before do
         water_bill.save
         Expense.new(name:"electric bill", amount:100, recurrance:"monthly", description:"lets me see at night").save
         Expense.new(name:"cable bill", amount:100, recurrance:"monthly", description:"lets me watch tv").save
       end
-      it "should return the injury with that name" do
-        Expense.find_by_name("water bill").name.should == "water bill"
+      it "should return the expense with that name" do
+        Expense.find_by(name:"water bill").name.should == "water bill"
       end
       it "should populate the id" do
-        Expense.find_by_name("water bill").id.should == water_bill.id
+        Expense.find_by(name:"water bill").id.should == water_bill.id
       end
     end
   end
