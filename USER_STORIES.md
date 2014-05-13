@@ -1,18 +1,6 @@
 USER STORIES
 ============
 
-As a user  
-In order to budget my finances  
-I want to create a new budget  
-
--  User runs `./budget`
--  Selects create new budget
--  Budget is created, added to database
--  If name is unique, success message displayed
--  If name is duplicate, fail message displayed, enter new name
--  Budget main menu displayed
-
-***
 
 As a user
 In order to navigate the program  
@@ -26,44 +14,49 @@ I want to select a number from the main menu
 
 As a user  
 In order to see my curent financial state  
-I want to view my balanced budget  
+I want to view my budget as it stands
 
 -  User runs `./budget`
+-  Select 'View Your Budget'
 -  Budget displays current financial state
--  Return to main meniu
+-  Return to Main Menu
 
 ***
 
-As a user  
-In order to compare income with expenses  
-I want to add a new expense  
+As a user
+In order to create an accurate budget expense total
+I want to add Expenses
 
 -  User runs `./budget`
--  User selects 'Add Expense'
--  User enters expense name, amount, and recurrence
+-  User selects 'Add An Expense'
+-  User enters expense name, amount, description, and recurrence
 -  Expense is added, message displayed if successfull
 -  Return to main menu
 
 ***
 
-As a user  
-In order to compare income with expenses  
-I want to add income  
+As a user
+In order to keep up with changing expenses
+I want to edit an expense name
 
 -  User runs `./budget`
--  User selects 'Add Income'
--  User enters date and amount
--  Income is added, message displayed if successfull
+-  User selects 'View Your Expenses'
+-  User selects 'Edit Expense'
+-  User types in name of expense to update
+-  User chooses to edit name
+-  Enter new value
+-  Expense Updated, message displayed if successfull
 -  Return to main menu
 
-As a user  
+As a user
 In order to keep up with changing expenses
-I want to update an expense
+I want to edit an expense amount
 
 -  User runs `./budget`
+-  User selects 'View Your Expenses'
 -  User selects 'Edit Expense'
--  List of Expense names displayed
 -  User types in name of expense to update
--  Enter, amount, description, category
+-  User chooses to edit amount
+-  Enter new amount
 -  Expense Updated, message displayed if successfull
 -  Return to main menu

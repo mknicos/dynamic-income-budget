@@ -44,7 +44,10 @@ def add_expense_selected
 
   puts "Write a short description of the expense:"
   expense_desc = gets.chomp
-  expense = Expense.new(expense_name, expense_amount, expense_recurs, expense_desc)
+  expense = Expense.new(name :expense_name,
+                        amount :expense_amount,
+                        recurrance :expense_recurs,
+                        description :expense_desc)
   if expense.save
     puts "============================="
     puts "#{expense_name} costing $#{expense_amount} #{expense_recurs} has been saved successfully"
@@ -84,7 +87,7 @@ EOS
 end
 
 def edit_name_selected(old_name)
-  expense = Expense.find_by_name(old_name)
+  expense = Expense.find_by(name:old_name)
   if expense == nil
     puts "I'm Sorry, there is no expense by that name, try again"
     edit_expense_selected
@@ -102,7 +105,7 @@ def edit_name_selected(old_name)
 end
 
 def edit_amount_selected(expense_name)
-  expense = Expense.find_by_name(expense_name)
+  expense = Expense.find_by(name:expense_name)
   if expense == nil
     puts "I'm Sorry there is no expense by that name, try again"
     edit_expense_selected
@@ -124,11 +127,12 @@ def view_expenses_selected
   puts "______EXPENSES______"
   print "\n"
   expenses.each do |expense|
-    puts expense[1].upcase
-    print "$" + expense[2].to_s + "\s"
-    print expense[3] + "\n"
-    puts expense[4]
+    puts expense[:name].upcase
+    print "$" + expense[:amount].to_s + "\s"
+    print expense[:recurrance] + "\n"
+    puts expense[:description]
     puts "___________________"
+    puts "-------------------"
     print "\n"
   end
   next_menu = <<EOS
@@ -174,7 +178,7 @@ def delete_expense_selected
   if expense_name == "b"
     display_main_menu
   else
-    expense = Expense.find_by_name(expense_name)
+    expense = Expense.find_by(name:expense_name)
     if expense == nil
       puts "There is no expense by that name, try again"
       delete_expense_selected
