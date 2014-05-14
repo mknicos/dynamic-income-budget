@@ -4,6 +4,17 @@ require 'expense'
 
 Database.environment = 'test'
 
+def run_ltk_with_input(*inputs)
+  shell_output = ""
+  IO.popen('ENVIRONMENT=test ./budget', 'r+') do |pipe|
+    inputs.each do |input|
+      pipe.puts input
+    end
+    pipe.close_write
+    shell_output << pipe.read
+  end
+  shell_output
+end
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true

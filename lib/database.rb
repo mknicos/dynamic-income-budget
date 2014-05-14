@@ -4,6 +4,7 @@ require 'active_record'
 
 project_root = File.dirname(File.absolute_path(__FILE__))
 Dir.glob(project_root + "/../models/*.rb").each{|f| require f}
+I18n.enforce_available_locales = false
 
 require 'logger'
 require 'yaml'
