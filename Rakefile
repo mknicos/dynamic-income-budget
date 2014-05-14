@@ -53,24 +53,29 @@ end
 #---Quick Methods to show what's in the databases---#
 desc 'print test database to terminal'
 task :print_test_db do
-  Database.environment = 'production'
-  Databse.connect_to_database
+  Database.environment = 'test'
+  Database.connect_to_database
 
   puts "-------EXPENSES-------"
-  expenses = Expense.execute("SELECT * FROM expenses")
+  expenses = Expense.connection.execute("SELECT * FROM expenses")
   expenses.each do |expense|
-    puts expense
+    puts expense["name"].upcase
+    print "$" + expense[:amount].to_s + "\s"
+    print expense[:recurrance] + "\n"
+    puts expense[:description]
+    puts "___________________"
     puts "====================="
+    print "\n" 
   end
 end
 
 desc 'print production database to terminal'
 task :print_db do
   Database.environment = 'production'
-  Databse.connect_to_database
+  Database.connect_to_database
 
   puts "-------EXPENSES-------"
-  expenses = Expense.execute("SELECT * FROM expenses")
+  expenses = Expense.connection.execute("SELECT * FROM expenses")
   expenses.each do |expense|
     puts expense
     puts "====================="
