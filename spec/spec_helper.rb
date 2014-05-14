@@ -4,7 +4,7 @@ require 'expense'
 
 Database.environment = 'test'
 
-def run_ltk_with_input(*inputs)
+def run_budget_with_input(*inputs)
   shell_output = ""
   IO.popen('ENVIRONMENT=test ./budget', 'r+') do |pipe|
     inputs.each do |input|
